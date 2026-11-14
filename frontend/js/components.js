@@ -32,9 +32,9 @@
         return a;
       })
     );
-    const logo = el('a', { href: '/', class: 'logo', 'aria-label': 'CS2 HUB - início' });
-    logo.append('CS2 ');
-    logo.appendChild(el('span', { text: 'HUB' }));
+    const logo = el('a', { href: '/', class: 'logo', 'aria-label': 'ACEZONE - início' });
+    logo.append('ACE');
+    logo.appendChild(el('span', { text: 'ZONE' }));
 
     const search = el('input', { class: 'search', type: 'search', placeholder: 'Buscar jogador ou equipe…', 'aria-label': 'Buscar' });
     // Busca funcional: redireciona para a página de jogadores com o termo (consulta real na Etapa 3).
@@ -56,7 +56,7 @@
   function renderFooter(target) {
     const links = el('nav', {}, NAV.map(([href, label]) => el('a', { href, text: label })));
     target.appendChild(el('div', { class: 'container footer-inner' }, [
-      el('span', { text: '© ' + new Date().getFullYear() + ' CS2 HUB — projeto independente, sem vínculo com Valve ou bo3.gg.' }),
+      el('span', { text: '© ' + new Date().getFullYear() + ' ACEZONE — projeto independente, sem vínculo com Valve ou bo3.gg.' }),
       links,
     ]));
   }

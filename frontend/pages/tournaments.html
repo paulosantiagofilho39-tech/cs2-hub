@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Campeonatos — CS2 HUB</title>
-  <meta name="description" content="Premiação, datas, classificação, grupos e playoffs.">
+  <title>Campeonatos — ACEZONE</title>
+  <meta name="description" content="Premiação, datas e organizadoras dos campeonatos de CS2.">
   <meta name="theme-color" content="#0d0e10">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,15 +16,16 @@
   <main>
     <div class="container">
       <h1 class="page-title">Campeonatos</h1>
-      <p class="page-sub">Premiação, datas, classificação, grupos e playoffs.</p>
-      <div class="filters" id="filters" data-filters='[]'></div>
-      
+      <p class="page-sub">Premiação, datas e organizadoras dos campeonatos de CS2.</p>
+      <div class="filters" id="filters" data-filters='[["running","Em andamento"],["upcoming","Próximos"],["past","Encerrados"]]'></div>
+      <p class="page-sub" style="font-size:.85rem">Dados: PandaScore.</p>
       
       <section class="card" id="content"></section>
     </div>
   </main>
   <footer class="site-footer" id="site-footer"></footer>
   <script src="/js/components.js"></script>
+  <script src="/js/cards.js"></script>
   <script src="/js/page.js"></script>
 </body>
 </html>

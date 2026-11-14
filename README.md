@@ -1,4 +1,4 @@
-# CS2 HUB
+# ACEZONE
 
 Plataforma de estatísticas e acompanhamento competitivo de Counter-Strike 2.
 Projeto independente, sem vínculo com Valve ou bo3.gg.
@@ -24,6 +24,8 @@ Páginas internas são geradas por `node scripts/build-pages.js` (template únic
 ## API (Etapa 1)
 
 - `GET /api/health` — status do servidor
+- `GET /api/matches?status=running|upcoming|past` — partidas reais (PandaScore)
+- `GET /api/tournaments?status=running|upcoming|past` — campeonatos reais (PandaScore)
 - `GET /api/admin/providers` — status das integrações (header `Authorization: Bearer <ADMIN_TOKEN>`)
 
 ## Segurança
@@ -34,7 +36,7 @@ Helmet (CSP), rate limiting e token para rotas administrativas já estão ativos
 ## Estado das etapas
 
 1. Estrutura, visual, home, navegação — **concluída**
-2. Supabase + PandaScore — pendente
+2. PandaScore (partidas e campeonatos, sem banco: cache em memória + CDN do Vercel) — **concluída**
 3. FACEIT, jogadores, equipes, rankings — pendente
 4. Estatísticas avançadas e gráficos — pendente
 5. Usuários, notícias, SEO, testes — pendente
@@ -54,3 +56,7 @@ As seções ainda sem integração mostram "Sem dados ainda": nenhum dado fictí
 
 No Vercel o frontend é servido estático e a API roda como função serverless (`api/index.js`).
 Tarefas periódicas (Etapa 2) usarão Vercel Cron ou um worker no Render.
+
+## Variável necessária
+
+`PANDASCORE_TOKEN` (token da PandaScore). No Vercel: Settings → Environment Variables. Cache: ao vivo 30s, próximas 5min, resultados 15min, campeonatos 1h.

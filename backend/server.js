@@ -1,4 +1,4 @@
-// CS2 HUB - servidor Express: API em /api + frontend estático.
+// ACEZONE - servidor Express: API em /api + frontend estático.
 const path = require('path');
 const express = require('express');
 const helmet = require('helmet');
@@ -44,7 +44,7 @@ PAGES.forEach((p) => app.get(`/${p}`, (req, res) => res.sendFile(path.join(FRONT
 app.use(errorHandler);
 
 if (require.main === module) {
-  app.listen(config.port, () => console.log(`CS2 HUB em http://localhost:${config.port}`));
+  app.listen(config.port, () => console.log(`ACEZONE em http://localhost:${config.port}`));
 }
 
 module.exports = app;

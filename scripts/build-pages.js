@@ -9,13 +9,17 @@ const MAPS = ['Mirage', 'Inferno', 'Dust2', 'Nuke', 'Ancient', 'Anubis', 'Overpa
 const PAGES = {
   matches: {
     title: 'Partidas', sub: 'Acompanhe partidas ao vivo, próximas e encerradas.',
-    filters: [['all', 'Todas'], ['live', 'Ao vivo'], ['upcoming', 'Próximas'], ['finished', 'Encerradas']],
-    note: 'Filtros por campeonato e por equipe serão ativados com os dados da PandaScore (Etapa 2).',
+    filters: [['running', 'Ao vivo'], ['upcoming', 'Próximas'], ['past', 'Encerradas']],
+    note: 'Dados: PandaScore. Filtros por campeonato e por equipe chegam em breve.',
     stage: 2,
   },
   players: { title: 'Jogadores', sub: 'Perfis, rating, K/D, ADR, KAST e comparação entre jogadores.', stage: 3 },
   teams: { title: 'Equipes', sub: 'Elenco, ranking, histórico e aproveitamento por mapa.', stage: 3 },
-  tournaments: { title: 'Campeonatos', sub: 'Premiação, datas, classificação, grupos e playoffs.', stage: 2 },
+  tournaments: {
+    title: 'Campeonatos', sub: 'Premiação, datas e organizadoras dos campeonatos de CS2.',
+    filters: [['running', 'Em andamento'], ['upcoming', 'Próximos'], ['past', 'Encerrados']],
+    note: 'Dados: PandaScore.', stage: 2,
+  },
   rankings: {
     title: 'Rankings', sub: 'Jogadores, equipes, desempenho individual e aproveitamento por mapa.',
     filters: [['7d', 'Últimos 7 dias'], ['30d', 'Últimos 30 dias'], ['3m', 'Últimos 3 meses'], ['year', 'Ano atual']],
@@ -31,7 +35,7 @@ const template = (key, p) => `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${p.title} — CS2 HUB</title>
+  <title>${p.title} — ACEZONE</title>
   <meta name="description" content="${p.sub}">
   <meta name="theme-color" content="#0d0e10">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -53,6 +57,7 @@ const template = (key, p) => `<!DOCTYPE html>
   </main>
   <footer class="site-footer" id="site-footer"></footer>
   <script src="/js/components.js"></script>
+  <script src="/js/cards.js"></script>
   <script src="/js/page.js"></script>
 </body>
 </html>

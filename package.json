@@ -1,14 +1,14 @@
 {
-  "name": "cs2-hub",
+  "name": "acezone",
   "version": "0.1.0",
-  "description": "CS2 HUB - plataforma de estatísticas e acompanhamento competitivo de Counter-Strike 2",
+  "description": "ACEZONE - plataforma de estatísticas e acompanhamento competitivo de Counter-Strike 2",
   "main": "backend/server.js",
   "private": true,
   "engines": { "node": ">=18" },
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node --watch backend/server.js",
-    "test": "node --test backend/"
+    "test": "node --test backend/pandascore.test.js"
   },
   "dependencies": {
     "compression": "^1.7.4",

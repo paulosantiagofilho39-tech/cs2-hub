@@ -144,3 +144,19 @@ main { flex: 1; padding: 28px 0 56px; }
   .nav a { padding: 12px; }
   .hero { padding: 30px 22px; }
 }
+
+/* Cards de partidas e campeonatos */
+.cards-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.stack { display: grid; gap: 12px; }
+.match-card { background: var(--card-2); padding: 14px; display: grid; gap: 8px; }
+.match-head, .match-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: .75rem; color: var(--muted); }
+.match-meta { color: var(--muted); font-size: .75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.match-foot a { color: var(--accent); font-weight: 600; }
+.team-row { display: flex; align-items: center; gap: 10px; }
+.team-name { flex: 1; font-weight: 600; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.team-score { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; }
+.team-row.winner .team-name, .team-row.winner .team-score { color: var(--accent); }
+.team-logo { object-fit: contain; flex-shrink: 0; }
+.logo-ph { width: 28px; height: 28px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); display: inline-flex; align-items: center; justify-content: center; font-size: .65rem; color: var(--muted); flex-shrink: 0; }
+.tourn-card { background: var(--card-2); padding: 14px; display: flex; gap: 12px; align-items: center; }
+.tourn-card strong { font-size: .92rem; }

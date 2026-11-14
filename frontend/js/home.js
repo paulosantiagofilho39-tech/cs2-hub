@@ -1,27 +1,30 @@
-// Página inicial. Etapa 1: seções prontas, com estados vazios honestos.
-// Etapa 2 substitui o conteúdo por dados reais vindos de /api.
+// Página inicial: dados reais da PandaScore (via /api) + estados vazios honestos
+// para seções que ainda não têm fonte (ranking, jogadores, notícias).
 document.addEventListener('DOMContentLoaded', async () => {
   const { emptyState, sectionCard, el } = window.HUB;
+  const { matchCard, tournamentCard, load } = window.Cards;
   const grid = document.getElementById('home-grid');
 
-  const NOT_YET = 'Os dados reais serão exibidos assim que a integração for conectada.';
+  const NOT_YET = 'Esta seção será ativada em uma próxima etapa.';
   const sections = [
-    { title: 'Partidas ao vivo', href: '/matches?status=live', badge: { text: 'AO VIVO', live: true }, cls: 'col-8', icon: '🔴', msg: 'Nenhuma partida ao vivo disponível. ' + NOT_YET },
-    { title: 'Campeonatos em destaque', href: '/tournaments', cls: 'col-4', icon: '🏆', msg: NOT_YET },
-    { title: 'Próximas partidas', href: '/matches?status=upcoming', cls: 'col-6', icon: '🗓️', msg: NOT_YET },
-    { title: 'Últimos resultados', href: '/matches?status=finished', cls: 'col-6', icon: '✅', msg: NOT_YET },
-    { title: 'Equipes mais bem ranqueadas', href: '/rankings', cls: 'col-4', icon: '🛡️', msg: NOT_YET },
-    { title: 'Jogadores em destaque', href: '/players', cls: 'col-4', icon: '🎯', msg: NOT_YET },
-    { title: 'Notícias recentes', href: '/news', cls: 'col-4', icon: '📰', msg: NOT_YET },
+    { title: 'Partidas ao vivo', href: '/matches?status=running', badge: { text: 'AO VIVO', live: true }, cls: 'col-8', url: '/api/matches?status=running&per_page=6', render: matchCard, empty: 'Nenhuma partida ao vivo no momento.', list: 'cards-grid' },
+    { title: 'Campeonatos em destaque', href: '/tournaments', cls: 'col-4', url: '/api/tournaments?status=running&per_page=5', render: tournamentCard, empty: 'Nenhum campeonato em andamento.', list: 'stack' },
+    { title: 'Próximas partidas', href: '/matches?status=upcoming', cls: 'col-6', url: '/api/matches?status=upcoming&per_page=6', render: matchCard, empty: 'Nenhuma partida agendada.', list: 'cards-grid' },
+    { title: 'Últimos resultados', href: '/matches?status=past', cls: 'col-6', url: '/api/matches?status=past&per_page=6', render: matchCard, empty: 'Sem resultados recentes.', list: 'cards-grid' },
+    { title: 'Equipes mais bem ranqueadas', href: '/rankings', cls: 'col-4', icon: '🛡️' },
+    { title: 'Jogadores em destaque', href: '/players', cls: 'col-4', icon: '🎯' },
+    { title: 'Notícias recentes', href: '/news', cls: 'col-4', icon: '📰' },
   ];
 
   sections.forEach((s, i) => {
-    const card = sectionCard({ ...s, content: emptyState('Sem dados ainda', s.msg, s.icon) });
+    const body = el('div', { class: s.list || '' });
+    const card = sectionCard({ ...s, content: body });
     card.style.animationDelay = i * 60 + 'ms';
     grid.appendChild(card);
+    if (s.url) load(s.url, body, s.render, s.empty);
+    else body.appendChild(emptyState('Em breve', NOT_YET, s.icon));
   });
 
-  // Status real das integrações (consulta ao backend; sem chaves expostas).
   const box = document.getElementById('api-status');
   try {
     const res = await fetch('/api/health');

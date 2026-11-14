@@ -11,7 +11,7 @@ function getProvidersStatus() {
     name: p.name,
     configured: Boolean(p.key), // nunca retornar a chave
     plannedStage: STAGE[id],
-    integrated: false,
+    integrated: id === 'pandascore',
   }));
 }
 
