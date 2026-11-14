@@ -182,3 +182,4 @@ main { flex: 1; padding: 28px 0 56px; }
 .side-tag.ct { background: rgba(80, 150, 255, .18); color: #7db4ff; }
 .side-tag.tr { background: rgba(255, 170, 60, .18); color: #ffb44d; }
 .live-note { grid-column: 1 / -1; }
+.viewers { color: #b794f6; font-weight: 600; }

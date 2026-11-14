@@ -87,3 +87,41 @@ test('Cito: usa x-api-key e retorna provider_not_configured sem chave', async ()
   assert.strictEqual(m.teams[1].logo, null); // http bloqueado
   assert.strictEqual(m.stream.url, 'https://twitch.tv/x');
 });
+
+test('Twitch: token de app, Client-Id, só canais ao vivo, cache e renovação em 401', async () => {
+  process.env.TWITCH_CLIENT_ID = 'cid';
+  process.env.TWITCH_CLIENT_SECRET = 'sec';
+  for (const m of ['./services/twitch', './config']) delete require.cache[require.resolve(m)];
+  const calls = [];
+  let streamsCalls = 0;
+  global.fetch = async (u, o = {}) => {
+    const url = String(u);
+    calls.push(url);
+    if (url.startsWith('https://id.twitch.tv/oauth2/token')) {
+      assert.match(String(o.body), /grant_type=client_credentials/);
+      assert.match(String(o.body), /client_secret=sec/);
+      return { ok: true, status: 200, json: async () => ({ access_token: 'T' + calls.length, expires_in: 5000000 }) };
+    }
+    streamsCalls++;
+    assert.strictEqual(o.headers['Client-Id'], 'cid');
+    if (streamsCalls === 1) return { ok: false, status: 401, json: async () => ({}) }; // força renovação
+    assert.match(o.headers.Authorization, /^Bearer T/);
+    return { ok: true, status: 200, json: async () => ({ data: [{ type: 'live', user_login: 'eslcs', viewer_count: 1234 }] }) };
+  };
+  const tw = require('./services/twitch');
+  const live = await tw.getLiveStreams(['eslcs', 'offline_one', 'BAD NAME']);
+  assert.strictEqual(live.get('eslcs').viewers, 1234);
+  assert.strictEqual(live.has('offline_one'), false);
+  assert.ok(String(calls.find((c) => c.includes('helix/streams'))).includes('user_login=eslcs'));
+  const before = calls.length;
+  await tw.getLiveStreams(['eslcs', 'offline_one']); // cache
+  assert.strictEqual(calls.length, before);
+});
+
+test('Twitch: sem credenciais retorna vazio sem chamar a rede', async () => {
+  delete process.env.TWITCH_CLIENT_SECRET;
+  for (const m of ['./services/twitch', './config']) delete require.cache[require.resolve(m)];
+  global.fetch = async () => { throw new Error('não deveria chamar'); };
+  const tw = require('./services/twitch');
+  assert.strictEqual((await tw.getLiveStreams(['eslcs'])).size, 0);
+});

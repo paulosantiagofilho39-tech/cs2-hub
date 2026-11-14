@@ -64,6 +64,16 @@ async function cached(key, ttlMs, loader) {
 // e só gasta cota: 30s de cache.
 const LIVE_TTL = 30; // segundos
 
+// Primeiro trecho do caminho da URL (twitch.tv/<canal>); null se não houver.
+function channelOf(url) {
+  try {
+    const seg = new URL(url).pathname.split('/').filter(Boolean)[0];
+    return seg && /^[A-Za-z0-9_]{1,25}$/.test(seg) ? seg.toLowerCase() : null;
+  } catch {
+    return null;
+  }
+}
+
 const httpsOnly = (u) => (typeof u === 'string' && u.startsWith('https://') ? u : null);
 
 // Normaliza uma partida ao vivo: o frontend não depende do formato bruto do provedor.
@@ -72,6 +82,12 @@ function normalizeLive(m) {
   const side = (k) => (m.ctTeam === k ? 'CT' : m.tTeam === k ? 'TR' : null);
   const links = (m.streamLinks || []).filter((l) => httpsOnly(l.url));
   const official = m.streams && m.streams.official && httpsOnly(m.streams.official.url);
+  // Todas as transmissões (https) com o canal extraído da URL; a Twitch é consultada depois.
+  const streams = links.slice(0, 8).map((l) => ({
+    platform: String(l.platform || '').toLowerCase() || null,
+    url: l.url,
+    channel: channelOf(l.url),
+  }));
   const team = (k) => ({
     name: t[`${k}Name`] || m[`${k}Name`] || 'A definir',
     logo: t[`${k}LogoIsPlaceholder`] ? null : httpsOnly(t[`${k}LogoUrl`]),
@@ -90,6 +106,7 @@ function normalizeLive(m) {
     updatedAt: m.latestSnapshotAt || null,
     teams: [team('team1'), team('team2')],
     stream: official ? { url: official } : links[0] ? { url: links[0].url } : null,
+    streams,
   };
 }
 

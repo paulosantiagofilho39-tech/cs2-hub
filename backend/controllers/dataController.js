@@ -123,11 +123,30 @@ exports.rankings = async (req, res) => {
 // ---------- Cito API (ao vivo) ----------
 const cito = require('../services/cito');
 
+const twitch = require('../services/twitch');
+
+// Acrescenta estado ao vivo e espectadores da Twitch (se configurada) às partidas da Cito.
+async function withTwitch(items) {
+  let live = new Map();
+  try {
+    live = await twitch.getLiveStreams(items.flatMap((i) => i.streams.filter((s) => s.platform === 'twitch').map((s) => s.channel)));
+  } catch (e) {
+    console.error('[twitch]', e.message); // opcional: o ao vivo segue sem espectadores
+  }
+  return items.map((i) => {
+    const on = i.streams
+      .filter((s) => s.platform === 'twitch' && s.channel && live.has(s.channel))
+      .map((s) => ({ channel: s.channel, url: s.url, viewers: live.get(s.channel).viewers }))
+      .sort((a, b) => b.viewers - a.viewers);
+    return { ...i, twitch: on.length ? { channels: on.length, viewers: on.reduce((n, c) => n + c.viewers, 0), url: on[0].url } : null };
+  });
+}
+
 exports.citoLive = async (req, res) => {
   try {
     const { ttl, delaySeconds, items } = await cito.getLive();
     setCdnCache(res, ttl);
-    res.json({ source: 'Cito API', delaySeconds, items });
+    res.json({ source: 'Cito API', delaySeconds, twitchEnabled: twitch.isConfigured(), items: await withTwitch(items) });
   } catch (err) {
     handleError(res, err);
   }

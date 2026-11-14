@@ -130,7 +130,8 @@
     const info = [mapLabel(m.map) && 'Mapa: ' + mapLabel(m.map), m.round && 'Rodada ' + m.round, m.bestOf && 'MD' + m.bestOf].filter(Boolean).join(' · ');
     const foot = el('div', { class: 'match-foot' }, [
       el('span', { text: info || 'Aguardando dados' }),
-      m.stream ? el('a', { href: m.stream.url, target: '_blank', rel: 'noopener noreferrer', text: 'Assistir ↗' }) : null,
+      m.twitch ? el('span', { class: 'viewers', text: '👁 ' + m.twitch.viewers.toLocaleString('pt-BR') + ' na Twitch' }) : null,
+      m.twitch || m.stream ? el('a', { href: (m.twitch || m.stream).url, target: '_blank', rel: 'noopener noreferrer', text: 'Assistir ↗' }) : null,
     ]);
     return el('article', { class: 'card match-card' }, [head, row(m.teams[0]), row(m.teams[1]), foot]);
   }

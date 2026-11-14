@@ -14,5 +14,7 @@ module.exports = {
     faceit: { name: 'FACEIT Data API', key: process.env.FACEIT_API_KEY || '' },
     grid: { name: 'GRID', key: process.env.GRID_API_KEY || '' },
     cito: { name: 'Cito API', key: process.env.CITO_API_KEY || '' },
+    // Twitch: key = Client Secret (só no servidor); clientId identifica o app.
+    twitch: { name: 'Twitch', key: process.env.TWITCH_CLIENT_SECRET || '', clientId: process.env.TWITCH_CLIENT_ID || '' },
   },
 };
