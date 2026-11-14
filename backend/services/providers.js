@@ -3,7 +3,7 @@
 // conferência da documentação oficial de cada API.
 const config = require('../config');
 
-const STAGE = { pandascore: 2, faceit: 3, grid: 4, cs2api: 4 };
+const STAGE = { pandascore: 2, faceit: 3, grid: 4, cito: 4 };
 
 function getProvidersStatus() {
   return Object.entries(config.providers).map(([id, p]) => ({
@@ -11,7 +11,7 @@ function getProvidersStatus() {
     name: p.name,
     configured: Boolean(p.key), // nunca retornar a chave
     plannedStage: STAGE[id],
-    integrated: id === 'pandascore',
+    integrated: id === 'pandascore' || id === 'cito',
   }));
 }
 

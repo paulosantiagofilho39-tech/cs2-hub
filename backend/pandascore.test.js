@@ -59,3 +59,20 @@ test('ranking calcula aproveitamento, ignora partidas sem vencedor e respeita o 
   assert.strictEqual(r.items[0].position, 1);
   assert.strictEqual(r.meta.matchesUsed, 6);
 });
+
+test('Cito: usa x-api-key e retorna provider_not_configured sem chave', async () => {
+  delete process.env.CITO_API_KEY;
+  for (const m of ['./services/cito', './config']) delete require.cache[require.resolve(m)];
+  let cito = require('./services/cito');
+  await assert.rejects(cito.getLive(), (e) => e.code === 'provider_not_configured');
+
+  process.env.CITO_API_KEY = 'k123';
+  for (const m of ['./services/cito', './config']) delete require.cache[require.resolve(m)];
+  let seen;
+  global.fetch = async (u, o) => { seen = { url: String(u), key: o.headers['x-api-key'] }; return { ok: true, status: 200, json: async () => ({ ok: true }) }; };
+  cito = require('./services/cito');
+  const r = await cito.getLive();
+  assert.strictEqual(seen.url, 'https://api.citoapi.com/api/v1/cs2/live');
+  assert.strictEqual(seen.key, 'k123');
+  assert.deepStrictEqual(r.data, { ok: true });
+});

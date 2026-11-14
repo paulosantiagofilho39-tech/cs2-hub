@@ -13,6 +13,6 @@ module.exports = {
     pandascore: { name: 'PandaScore', key: process.env.PANDASCORE_TOKEN || '' },
     faceit: { name: 'FACEIT Data API', key: process.env.FACEIT_API_KEY || '' },
     grid: { name: 'GRID', key: process.env.GRID_API_KEY || '' },
-    cs2api: { name: 'CS2 API', key: process.env.CS2API_KEY || '' },
+    cito: { name: 'Cito API', key: process.env.CITO_API_KEY || '' },
   },
 };

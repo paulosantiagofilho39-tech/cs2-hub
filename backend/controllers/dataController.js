@@ -119,3 +119,16 @@ exports.rankings = async (req, res) => {
     handleError(res, err);
   }
 };
+
+// ---------- Cito API (ao vivo) ----------
+const cito = require('../services/cito');
+
+exports.citoLive = async (req, res) => {
+  try {
+    const { ttl, data } = await cito.getLive();
+    setCdnCache(res, ttl);
+    res.json({ source: 'Cito API', data });
+  } catch (err) {
+    handleError(res, err);
+  }
+};

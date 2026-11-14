@@ -14,6 +14,9 @@ router.get('/players', data.players);
 router.get('/players/:key', data.player);
 router.get('/rankings', data.rankings);
 
+// Cito API (ao vivo)
+router.get('/cito/live', data.citoLive);
+
 // Rota administrativa (protegida): status das integrações.
 router.get('/admin/providers', requireAdmin, system.providers);
 
