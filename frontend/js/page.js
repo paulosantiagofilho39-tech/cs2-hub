@@ -38,7 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
     content.className = 'card';
     const body = el('div', { class: LIVE.grid });
     content.replaceChildren(body);
-    C.load(LIVE.api(current, query), body, LIVE.render(), LIVE.empty);
+    if (page === 'matches' && current === 'running') C.loadLive(body);
+    else C.load(LIVE.api(current, query), body, LIVE.render(), LIVE.empty);
     if (LIVE.meta) showMeta(current);
   }
 

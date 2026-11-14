@@ -110,5 +110,46 @@
     ]);
   }
 
-  window.Cards = { matchCard, tournamentCard, teamCard, playerCard, rankRow, load, logo, flag, fmtDate, fmtDay, teamHref, playerHref };
+
+  // ---------- Ao vivo (Cito API) ----------
+  const mapLabel = (m) => (m ? m.charAt(0).toUpperCase() + m.slice(1) : null);
+
+  function liveCard(m) {
+    const head = el('div', { class: 'match-head' }, [
+      el('span', { class: 'match-meta', text: m.event.name || 'CS2' }),
+      el('span', { class: 'badge live', text: 'AO VIVO' }),
+    ]);
+    const row = (t) =>
+      el('div', { class: 'team-row' }, [
+        logo(t.logo, t.name),
+        el('span', { class: 'team-name', text: t.name }),
+        t.side ? el('span', { class: 'side-tag ' + t.side.toLowerCase(), text: t.side }) : null,
+        el('span', { class: 'map-score', text: t.mapScore ?? '-' }),
+        el('span', { class: 'team-score', text: t.seriesScore ?? '-' }),
+      ]);
+    const info = [mapLabel(m.map) && 'Mapa: ' + mapLabel(m.map), m.round && 'Rodada ' + m.round, m.bestOf && 'MD' + m.bestOf].filter(Boolean).join(' · ');
+    const foot = el('div', { class: 'match-foot' }, [
+      el('span', { text: info || 'Aguardando dados' }),
+      m.stream ? el('a', { href: m.stream.url, target: '_blank', rel: 'noopener noreferrer', text: 'Assistir ↗' }) : null,
+    ]);
+    return el('article', { class: 'card match-card' }, [head, row(m.teams[0]), row(m.teams[1]), foot]);
+  }
+
+  // Ao vivo: usa a Cito API (placar por rodada); se indisponível, cai para a PandaScore.
+  async function loadLive(container, limit) {
+    container.replaceChildren(emptyState('Carregando…', 'Buscando partidas ao vivo.', '⏳'));
+    try {
+      const res = await fetch('/api/cito/live');
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || 'Erro');
+      container.replaceChildren();
+      const items = limit ? body.items.slice(0, limit) : body.items;
+      if (!items.length) return container.appendChild(emptyState('Nada por aqui', 'Nenhuma partida ao vivo no momento.'));
+      items.forEach((i) => container.appendChild(liveCard(i)));
+      if (body.delaySeconds) container.appendChild(el('p', { class: 'match-meta live-note', text: `Placar com atraso de ${body.delaySeconds}s (plano gratuito da fonte).` }));
+    } catch {
+      return load('/api/matches?status=running&per_page=' + (limit || 30), container, matchCard, 'Nenhuma partida ao vivo no momento.', limit);
+    }
+  }
+  window.Cards = { matchCard, tournamentCard, teamCard, playerCard, rankRow, load, loadLive, liveCard, logo, flag, fmtDate, fmtDay, teamHref, playerHref };
 })();

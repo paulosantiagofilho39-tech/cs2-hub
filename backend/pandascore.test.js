@@ -69,10 +69,21 @@ test('Cito: usa x-api-key e retorna provider_not_configured sem chave', async ()
   process.env.CITO_API_KEY = 'k123';
   for (const m of ['./services/cito', './config']) delete require.cache[require.resolve(m)];
   let seen;
-  global.fetch = async (u, o) => { seen = { url: String(u), key: o.headers['x-api-key'] }; return { ok: true, status: 200, json: async () => ({ ok: true }) }; };
+  const raw = { data: [{ matchId: 'm1', status: 'live', eventName: 'Ev', eventLogoUrl: 'https://x/l.webp', bestOf: 3,
+    teams: { team1Name: 'A', team1LogoUrl: 'https://x/a.webp', team2Name: 'B', team2LogoUrl: 'http://bad/b.webp' },
+    score: { team1: 1, team2: 0 }, currentMapScore: { team1: 8, team2: 4 }, currentMap: 'de_mirage', currentRound: 13,
+    ctTeam: 'team2', tTeam: 'team1', streams: { official: { url: 'https://twitch.tv/x' } } }], delayed: { delay_seconds: 60 } };
+  global.fetch = async (u, o) => { seen = { url: String(u), key: o.headers['x-api-key'] }; return { ok: true, status: 200, json: async () => raw }; };
   cito = require('./services/cito');
   const r = await cito.getLive();
   assert.strictEqual(seen.url, 'https://api.citoapi.com/api/v1/cs2/live');
   assert.strictEqual(seen.key, 'k123');
-  assert.deepStrictEqual(r.data, { ok: true });
+  assert.strictEqual(r.delaySeconds, 60);
+  const m = r.items[0];
+  assert.strictEqual(m.map, 'mirage');
+  assert.strictEqual(m.teams[0].mapScore, 8);
+  assert.strictEqual(m.teams[0].side, 'TR');
+  assert.strictEqual(m.teams[1].side, 'CT');
+  assert.strictEqual(m.teams[1].logo, null); // http bloqueado
+  assert.strictEqual(m.stream.url, 'https://twitch.tv/x');
 });

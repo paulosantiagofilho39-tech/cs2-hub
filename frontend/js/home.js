@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const NOT_YET = 'Esta seção será ativada em uma próxima etapa.';
   const sections = [
-    { title: 'Partidas ao vivo', href: '/matches?status=running', badge: { text: 'AO VIVO', live: true }, cls: 'col-8', url: '/api/matches?status=running&per_page=6', render: matchCard, empty: 'Nenhuma partida ao vivo no momento.', list: 'cards-grid' },
+    { title: 'Partidas ao vivo', href: '/matches?status=running', badge: { text: 'AO VIVO', live: true }, cls: 'col-8', live: true, list: 'cards-grid', limit: 6 },
     { title: 'Campeonatos em destaque', href: '/tournaments', cls: 'col-4', url: '/api/tournaments?status=running&per_page=5', render: tournamentCard, empty: 'Nenhum campeonato em andamento.', list: 'stack' },
     { title: 'Próximas partidas', href: '/matches?status=upcoming', cls: 'col-6', url: '/api/matches?status=upcoming&per_page=6', render: matchCard, empty: 'Nenhuma partida agendada.', list: 'cards-grid' },
     { title: 'Últimos resultados', href: '/matches?status=past', cls: 'col-6', url: '/api/matches?status=past&per_page=6', render: matchCard, empty: 'Sem resultados recentes.', list: 'cards-grid' },
@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const card = sectionCard({ ...s, content: body });
     card.style.animationDelay = i * 60 + 'ms';
     grid.appendChild(card);
-    if (s.url) load(s.url, body, s.render, s.empty, s.limit);
+    if (s.live) window.Cards.loadLive(body, s.limit);
+    else if (s.url) load(s.url, body, s.render, s.empty, s.limit);
     else body.appendChild(emptyState('Em breve', NOT_YET, s.icon));
   });
 

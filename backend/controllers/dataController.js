@@ -125,9 +125,9 @@ const cito = require('../services/cito');
 
 exports.citoLive = async (req, res) => {
   try {
-    const { ttl, data } = await cito.getLive();
+    const { ttl, delaySeconds, items } = await cito.getLive();
     setCdnCache(res, ttl);
-    res.json({ source: 'Cito API', data });
+    res.json({ source: 'Cito API', delaySeconds, items });
   } catch (err) {
     handleError(res, err);
   }

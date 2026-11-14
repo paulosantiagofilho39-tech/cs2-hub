@@ -175,3 +175,10 @@ main { flex: 1; padding: 28px 0 56px; }
 .stat { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; display: grid; gap: 2px; }
 .stat-v { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; }
 .stat-l { color: var(--muted); font-size: .75rem; }
+
+/* Ao vivo (Cito) */
+.map-score { font-size: .8rem; color: var(--muted); min-width: 24px; text-align: right; }
+.side-tag { font-size: .65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+.side-tag.ct { background: rgba(80, 150, 255, .18); color: #7db4ff; }
+.side-tag.tr { background: rgba(255, 170, 60, .18); color: #ffb44d; }
+.live-note { grid-column: 1 / -1; }

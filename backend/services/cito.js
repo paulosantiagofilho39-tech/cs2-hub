@@ -60,12 +60,43 @@ async function cached(key, ttlMs, loader) {
   return p;
 }
 
-const LIVE_TTL = 15; // segundos
+// O plano gratuito entrega dados com 60s de atraso, então consultar com mais frequência não ajuda
+// e só gasta cota: 30s de cache.
+const LIVE_TTL = 30; // segundos
 
-// Resposta bruta por enquanto: a normalização será feita após conferir o formato real.
+const httpsOnly = (u) => (typeof u === 'string' && u.startsWith('https://') ? u : null);
+
+// Normaliza uma partida ao vivo: o frontend não depende do formato bruto do provedor.
+function normalizeLive(m) {
+  const t = m.teams || {};
+  const side = (k) => (m.ctTeam === k ? 'CT' : m.tTeam === k ? 'TR' : null);
+  const links = (m.streamLinks || []).filter((l) => httpsOnly(l.url));
+  const official = m.streams && m.streams.official && httpsOnly(m.streams.official.url);
+  const team = (k) => ({
+    name: t[`${k}Name`] || m[`${k}Name`] || 'A definir',
+    logo: t[`${k}LogoIsPlaceholder`] ? null : httpsOnly(t[`${k}LogoUrl`]),
+    seriesScore: m.score?.[k] ?? m[`${k}Score`] ?? null, // mapas vencidos
+    mapScore: m.currentMapScore?.[k] ?? null, // rounds no mapa atual
+    side: side(k), // CT | TR
+  });
+  return {
+    id: m.matchId || m.id,
+    status: m.status,
+    event: { name: m.eventName || null, logo: httpsOnly(m.eventLogoUrl) },
+    bestOf: m.bestOf ?? null,
+    startsAt: m.startsAt || null,
+    map: m.currentMap ? String(m.currentMap).replace(/^de_/, '') : null,
+    round: m.currentRound ?? null,
+    updatedAt: m.latestSnapshotAt || null,
+    teams: [team('team1'), team('team2')],
+    stream: official ? { url: official } : links[0] ? { url: links[0].url } : null,
+  };
+}
+
 async function getLive() {
-  const data = await cached('live', LIVE_TTL * 1000, () => request('/api/v1/cs2/live'));
-  return { ttl: LIVE_TTL, data };
+  const body = await cached('live', LIVE_TTL * 1000, () => request('/api/v1/cs2/live'));
+  const list = Array.isArray(body?.data) ? body.data : [];
+  return { ttl: LIVE_TTL, delaySeconds: body?.delayed?.delay_seconds ?? 0, items: list.map(normalizeLive) };
 }
 
 module.exports = { getLive, CitoError };
