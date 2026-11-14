@@ -37,7 +37,13 @@ async function request(path, params) {
       });
       if (res.ok) return await res.json();
       if (res.status === 401 || res.status === 403) throw new ProviderError('Token da PandaScore rejeitado.', 502, 'provider_auth');
-      if (res.status === 429) throw new ProviderError('Limite de requisições da PandaScore atingido.', 503, 'provider_rate_limited');
+      if (res.status === 429) {
+        // Limite atingido: espera (respeitando Retry-After, no máximo 3s) e tenta de novo.
+        lastErr = new ProviderError('Limite de requisições da PandaScore atingido.', 503, 'provider_rate_limited');
+        const wait = Math.min(Number(res.headers.get('retry-after')) * 1000 || 1000 * (attempt + 1), 3000);
+        if (attempt < MAX_RETRIES) { await sleep(wait); continue; }
+        throw lastErr;
+      }
       lastErr = new ProviderError(`PandaScore respondeu ${res.status}.`, 502);
       if (res.status < 500) throw lastErr; // 4xx não adianta repetir
     } catch (e) {
@@ -223,18 +229,24 @@ async function getTeamMatches(teamId, perPage = 30) {
 // Não existe ranking oficial na API gratuita. Calculamos o aproveitamento (vitórias / partidas)
 // a partir de resultados reais. Todas as janelas usam o mesmo conjunto de partidas recentes
 // (cache de 6h) e informamos o intervalo realmente coberto.
-const RANK_PAGES = 10; // 10 x 100 = até 1000 partidas por atualização
+const RANK_PAGES = 6; // 6 x 100 = até 600 partidas por atualização
+const RANK_CONCURRENCY = 2; // poucas chamadas simultâneas para não estourar o limite
 const RANK_TTL = 6 * 3600;
 const PERIOD_DAYS = { '7d': 7, '30d': 30, '3m': 90 };
 
 async function loadRecentFinished() {
-  const pages = await Promise.all(
-    Array.from({ length: RANK_PAGES }, (_, i) =>
-      cached(`rank:page:${i + 1}`, RANK_TTL * 1000, () =>
-        request('/csgo/matches/past', { 'filter[status]': 'finished', sort: '-begin_at', per_page: 100, page: i + 1 })
-      )
-    )
-  );
+  const pages = [];
+  for (let start = 1; start <= RANK_PAGES; start += RANK_CONCURRENCY) {
+    const batch = [];
+    for (let n = start; n < start + RANK_CONCURRENCY && n <= RANK_PAGES; n++) {
+      batch.push(
+        cached(`rank:page:${n}`, RANK_TTL * 1000, () =>
+          request('/csgo/matches/past', { 'filter[status]': 'finished', sort: '-begin_at', per_page: 100, page: n })
+        )
+      );
+    }
+    pages.push(...(await Promise.all(batch)));
+  }
   return pages.flat().map(normalizeMatch).filter((m) => m.status === 'finished' && m.winnerId && m.teams.length === 2 && m.beginAt);
 }
 
