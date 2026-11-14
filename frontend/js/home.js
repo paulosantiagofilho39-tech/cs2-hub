@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const { matchCard, tournamentCard, load } = window.Cards;
   const grid = document.getElementById('home-grid');
 
-  const NOT_YET = 'Esta seção será ativada em uma próxima etapa.';
+  const NOT_YET = 'Em breve no ACEZONE.';
   heroPlayer(document.getElementById('hero-player'));
 
   const sections = [
@@ -27,20 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     else if (s.url) load(s.url, body, s.render, s.empty, s.limit);
     else body.appendChild(emptyState('Em breve', NOT_YET, s.icon));
   });
-
-  const box = document.getElementById('api-status');
-  try {
-    const res = await fetch('/api/health');
-    const data = await res.json();
-    box.appendChild(el('div', { class: 'status-row' }, [
-      el('span', {}, [el('i', { class: 'dot ok' }), document.createTextNode('Backend')]),
-      el('span', { text: data.status === 'ok' ? 'Online' : 'Indisponível' }),
-    ]));
-  } catch {
-    box.appendChild(el('div', { class: 'status-row' }, [el('span', { text: 'Backend' }), el('span', { text: 'Offline' })]));
-  }
 });
-
 
 // Player principal da home: já começa a transmitir (sem som) a partida ao vivo mais assistida.
 async function heroPlayer(box) {
@@ -72,8 +59,7 @@ async function heroPlayer(box) {
       caption.replaceChildren(
         el('span', { class: 'badge live', text: 'AO VIVO' }),
         el('strong', { text: m.teams[0].name + ' × ' + m.teams[1].name + '  ' + score }),
-        el('span', { class: 'match-meta', text: (m.event.name || 'CS2') + ' · ' + (PLATFORM[s.platform] || s.platform) + (m.twitch ? ' · 👁 ' + m.twitch.viewers.toLocaleString('pt-BR') : '') }),
-        el('span', { class: 'match-meta', text: 'Sem som — use o controle do player para ativar.' })
+        el('span', { class: 'match-meta', text: (m.event.name || 'CS2') + ' · ' + (PLATFORM[s.platform] || s.platform) + (m.twitch ? ' · 👁 ' + m.twitch.viewers.toLocaleString('pt-BR') : '') })
       );
       [...picker.children].forEach((b, j) => b.classList.toggle('active', j === i));
     }

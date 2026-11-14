@@ -29,10 +29,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         stat('Derrotas', r.losses),
         stat('Aproveitamento', r.played ? Math.round((r.wins / r.played) * 100) + '%' : '—'),
       ]);
-      const roster = el('div', { class: 'cards-grid' }, t.players.length ? t.players.map((p) => C.playerCard({ ...p, team: null })) : [emptyState('Sem elenco informado', 'A API não retornou jogadores para esta equipe.')]);
+      const roster = el('div', { class: 'cards-grid' }, t.players.length ? t.players.map((p) => C.playerCard({ ...p, team: null })) : [emptyState('Sem elenco informado', 'Ainda não há jogadores cadastrados para esta equipe.')]);
       const recent = el('div', { class: 'cards-grid' }, b.recent.length ? b.recent.map(C.matchCard) : [emptyState('Sem partidas recentes', 'Nenhum resultado encontrado.')]);
-      root.replaceChildren(head, stats, section('Elenco atual', roster), section('Últimas partidas', recent),
-        el('p', { class: 'page-sub', style: 'font-size:.8rem;margin-top:16px', text: `Saldo calculado sobre as últimas ${r.played} partidas encerradas. Aproveitamento por mapa e estatísticas de jogadores ainda não estão disponíveis.` }));
+      root.replaceChildren(head, stats, section('Elenco atual', roster), section('Últimas partidas', recent));
     } else {
       const p = b.player;
       document.title = `${p.name} — ACEZONE`;
@@ -47,7 +46,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       ]);
       const parts = [head, stats];
       if (p.team) parts.push(section('Equipe atual', el('div', { class: 'cards-grid' }, [C.teamCard({ ...p.team, country: null })])));
-      parts.push(el('p', { class: 'page-sub', style: 'font-size:.8rem;margin-top:16px', text: 'Rating, K/D, ADR, KAST e HS% não estão disponíveis no plano atual da fonte de dados.' }));
       root.replaceChildren(...parts);
     }
   } catch {

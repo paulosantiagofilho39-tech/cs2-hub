@@ -69,11 +69,10 @@
       if (!items.length) return container.appendChild(emptyState('Nada por aqui', emptyMsg));
       items.forEach((i) => container.appendChild(render(i)));
     } catch (e) {
-      const notConfigured = e.code === 'provider_not_configured';
       container.replaceChildren(
         emptyState(
-          notConfigured ? 'Fonte de dados não configurada' : 'Não foi possível carregar',
-          notConfigured ? 'Defina PANDASCORE_TOKEN no servidor.' : 'Tente novamente em instantes.',
+          'Não foi possível carregar',
+          'Tente novamente em instantes.',
           '⚠️'
         )
       );
@@ -213,7 +212,6 @@
       const items = limit ? body.items.slice(0, limit) : body.items;
       if (!items.length) return container.appendChild(emptyState('Nada por aqui', 'Nenhuma partida ao vivo no momento.'));
       items.forEach((i) => container.appendChild(liveCard(i)));
-      if (body.delaySeconds) container.appendChild(el('p', { class: 'match-meta live-note', text: `Placar com atraso de ${body.delaySeconds}s (plano gratuito da fonte).` }));
     } catch {
       return load('/api/matches?status=running&per_page=' + (limit || 30), container, matchCard, 'Nenhuma partida ao vivo no momento.', limit);
     }

@@ -23,16 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let current = valid.includes(params.get(paramName)) ? params.get(paramName) : LIVE && LIVE.fallback ? LIVE.fallback : valid[0];
   let query = (params.get('q') || '').trim();
 
-  const metaBox = el('p', { class: 'page-sub', style: 'font-size:.8rem' });
-  async function showMeta(value) {
-    try {
-      const r = await fetch(LIVE.api(value, query));
-      const b = await r.json();
-      if (!r.ok) return;
-      metaBox.textContent = `${b.method} Janela: ${value === 'year' ? 'ano atual' : value}. Base: ${b.matchesUsed} partidas (níveis ${b.tiers}), dados de ${C.fmtDay(b.dataFrom)} a ${C.fmtDay(b.dataTo)}. Mínimo de ${b.minMatches} partidas por equipe.`;
-    } catch { /* o aviso é opcional */ }
-  }
-
   function refresh() {
     if (!LIVE) return;
     content.className = 'card';
@@ -40,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
     content.replaceChildren(body);
     if (page === 'matches' && current === 'running') C.loadLive(body);
     else C.load(LIVE.api(current, query), body, LIVE.render(), LIVE.empty);
-    if (LIVE.meta) showMeta(current);
   }
 
   filters.forEach(([value, label]) => {
@@ -70,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     content.before(input);
   }
-  if (LIVE && LIVE.meta) content.before(metaBox);
 
   // Mapas: lista dos 8 mapas competitivos (sem estatísticas inventadas).
   const mapsBox = document.getElementById('maps-grid');
@@ -81,5 +69,5 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (LIVE) return refresh();
-  content.appendChild(emptyState('Sem dados ainda', `Esta seção receberá dados reais na Etapa ${stage}.`));
+  content.appendChild(emptyState('Em breve', 'Esta seção estará disponível em breve.'));
 });

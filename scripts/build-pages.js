@@ -10,24 +10,23 @@ const PAGES = {
   matches: {
     title: 'Partidas', sub: 'Acompanhe partidas ao vivo, próximas e encerradas.',
     filters: [['running', 'Ao vivo'], ['upcoming', 'Próximas'], ['past', 'Encerradas']],
-    note: 'Dados: PandaScore. Filtros por campeonato e por equipe chegam em breve.',
     stage: 2,
   },
-  players: { title: 'Jogadores', sub: 'Perfis de jogadores profissionais de CS2. Estatísticas individuais dependem de outra fonte de dados.', stage: 3 },
+  players: { title: 'Jogadores', sub: 'Perfis de jogadores profissionais de CS2.', stage: 3 },
   teams: { title: 'Equipes', sub: 'Elenco, país e histórico de partidas das equipes de CS2.', stage: 3 },
   tournaments: {
     title: 'Campeonatos', sub: 'Premiação, datas e organizadoras dos campeonatos de CS2.',
     filters: [['running', 'Em andamento'], ['upcoming', 'Próximos'], ['past', 'Encerrados']],
-    note: 'Dados: PandaScore.', stage: 2,
+    stage: 2,
   },
   rankings: {
     title: 'Rankings', sub: 'Jogadores, equipes, desempenho individual e aproveitamento por mapa.',
     filters: [['7d', 'Últimos 7 dias'], ['30d', 'Últimos 30 dias'], ['3m', 'Últimos 3 meses'], ['year', 'Ano atual']],
-    note: 'Ranking calculado a partir de resultados reais; não é um ranking oficial.', stage: 3,
+    stage: 3,
   },
   stats: { title: 'Estatísticas avançadas', sub: 'Rating, K/D, ADR, KAST, HS%, first kills, clutches e lado CT/TR.', stage: 4 },
   maps: { title: 'Mapas', sub: 'Taxa de vitória, popularidade e desempenho por equipe em cada mapa.', maps: true, stage: 4 },
-  news: { title: 'Notícias', sub: 'Transferências, mudanças de elenco e resultados, com link para a fonte original.', stage: 5 },
+  news: { title: 'Notícias', sub: 'Transferências, mudanças de elenco e resultados.', stage: 5 },
 };
 
 const template = (key, p) => `<!DOCTYPE html>
