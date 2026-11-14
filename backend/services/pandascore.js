@@ -124,7 +124,8 @@ function normalizeTournament(t) {
 const MATCH_STATUS = {
   running: { path: '/csgo/matches/running', ttl: 30, sort: 'scheduled_at' },
   upcoming: { path: '/csgo/matches/upcoming', ttl: 300, sort: 'scheduled_at' },
-  past: { path: '/csgo/matches/past', ttl: 900, sort: '-begin_at' },
+  // Só partidas encerradas: as canceladas não têm begin_at e dominariam o topo da ordenação.
+  past: { path: '/csgo/matches/past', ttl: 900, sort: '-begin_at', filter: { 'filter[status]': 'finished' } },
 };
 const TOURNAMENT_STATUS = {
   running: { path: '/csgo/tournaments/running', ttl: 3600, sort: 'begin_at' },
@@ -134,7 +135,7 @@ const TOURNAMENT_STATUS = {
 
 async function listMatches(status, { page = 1, perPage = 20 } = {}) {
   const cfg = MATCH_STATUS[status];
-  const params = { page, per_page: perPage, sort: cfg.sort };
+  const params = { page, per_page: perPage, sort: cfg.sort, ...(cfg.filter || {}) };
   const data = await cached(`m:${status}:${page}:${perPage}`, cfg.ttl * 1000, () => request(cfg.path, params));
   return { ttl: cfg.ttl, items: data.map(normalizeMatch) };
 }
@@ -210,7 +211,7 @@ async function getTeamsByIds(ids) {
 // Últimas partidas encerradas de uma equipe + saldo calculado a partir delas.
 async function getTeamMatches(teamId, perPage = 30) {
   const data = await cached(`teamm:${teamId}:${perPage}`, 900 * 1000, () =>
-    request('/csgo/matches/past', { 'filter[opponent_id]': teamId, sort: '-begin_at', per_page: perPage })
+    request('/csgo/matches/past', { 'filter[opponent_id]': teamId, 'filter[status]': 'finished', sort: '-begin_at', per_page: perPage })
   );
   const matches = data.map(normalizeMatch);
   const done = matches.filter((m) => m.status === 'finished' && m.winnerId);
@@ -230,7 +231,7 @@ async function loadRecentFinished() {
   const pages = await Promise.all(
     Array.from({ length: RANK_PAGES }, (_, i) =>
       cached(`rank:page:${i + 1}`, RANK_TTL * 1000, () =>
-        request('/csgo/matches/past', { sort: '-begin_at', per_page: 100, page: i + 1 })
+        request('/csgo/matches/past', { 'filter[status]': 'finished', sort: '-begin_at', per_page: 100, page: i + 1 })
       )
     )
   );
