@@ -1,0 +1,8 @@
+{
+  "buildCommand": "node scripts/build-pages.js",
+  "outputDirectory": "frontend",
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api" },
+    { "source": "/:page(matches|players|teams|tournaments|rankings|stats|maps|news)", "destination": "/pages/:page.html" }
+  ]
+}

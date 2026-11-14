@@ -1,0 +1,65 @@
+// Gera as páginas internas a partir de um template único (evita duplicação).
+// Uso: node scripts/build-pages.js
+const fs = require('fs');
+const path = require('path');
+
+const OUT = path.join(__dirname, '..', 'frontend', 'pages');
+const MAPS = ['Mirage', 'Inferno', 'Dust2', 'Nuke', 'Ancient', 'Anubis', 'Overpass', 'Train'];
+
+const PAGES = {
+  matches: {
+    title: 'Partidas', sub: 'Acompanhe partidas ao vivo, próximas e encerradas.',
+    filters: [['all', 'Todas'], ['live', 'Ao vivo'], ['upcoming', 'Próximas'], ['finished', 'Encerradas']],
+    note: 'Filtros por campeonato e por equipe serão ativados com os dados da PandaScore (Etapa 2).',
+    stage: 2,
+  },
+  players: { title: 'Jogadores', sub: 'Perfis, rating, K/D, ADR, KAST e comparação entre jogadores.', stage: 3 },
+  teams: { title: 'Equipes', sub: 'Elenco, ranking, histórico e aproveitamento por mapa.', stage: 3 },
+  tournaments: { title: 'Campeonatos', sub: 'Premiação, datas, classificação, grupos e playoffs.', stage: 2 },
+  rankings: {
+    title: 'Rankings', sub: 'Jogadores, equipes, desempenho individual e aproveitamento por mapa.',
+    filters: [['7d', 'Últimos 7 dias'], ['30d', 'Últimos 30 dias'], ['3m', 'Últimos 3 meses'], ['year', 'Ano atual']],
+    note: 'Nenhuma posição é exibida sem dados reais.', stage: 3,
+  },
+  stats: { title: 'Estatísticas avançadas', sub: 'Rating, K/D, ADR, KAST, HS%, first kills, clutches e lado CT/TR.', stage: 4 },
+  maps: { title: 'Mapas', sub: 'Taxa de vitória, popularidade e desempenho por equipe em cada mapa.', maps: true, stage: 4 },
+  news: { title: 'Notícias', sub: 'Transferências, mudanças de elenco e resultados, com link para a fonte original.', stage: 5 },
+};
+
+const template = (key, p) => `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${p.title} — CS2 HUB</title>
+  <meta name="description" content="${p.sub}">
+  <meta name="theme-color" content="#0d0e10">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="${key}" data-stage="${p.stage}">
+  <header class="site-header" id="site-header"></header>
+  <main>
+    <div class="container">
+      <h1 class="page-title">${p.title}</h1>
+      <p class="page-sub">${p.sub}</p>
+      <div class="filters" id="filters" data-filters='${JSON.stringify(p.filters || [])}'></div>
+      ${p.note ? `<p class="page-sub" style="font-size:.85rem">${p.note}</p>` : ''}
+      ${p.maps ? `<div class="maps-grid" id="maps-grid" data-maps='${JSON.stringify(MAPS)}'></div>` : ''}
+      <section class="card" id="content"></section>
+    </div>
+  </main>
+  <footer class="site-footer" id="site-footer"></footer>
+  <script src="/js/components.js"></script>
+  <script src="/js/page.js"></script>
+</body>
+</html>
+`;
+
+fs.mkdirSync(OUT, { recursive: true });
+for (const [key, p] of Object.entries(PAGES)) {
+  fs.writeFileSync(path.join(OUT, `${key}.html`), template(key, p));
+}
+console.log(`${Object.keys(PAGES).length} páginas geradas em ${OUT}`);
