@@ -64,15 +64,23 @@ async function cached(key, ttlMs, loader) {
 // e só gasta cota: 30s de cache.
 const LIVE_TTL = 30; // segundos
 
-// Primeiro trecho do caminho da URL (twitch.tv/<canal>); null se não houver.
-function channelOf(url) {
+// Identificador do canal/vídeo a partir da URL: twitch.tv/<canal>, kick.com/<canal>, youtube ?v=<id>.
+function channelOf(url, platform) {
   try {
-    const seg = new URL(url).pathname.split('/').filter(Boolean)[0];
+    const u = new URL(url);
+    if (platform === 'youtube') {
+      const v = u.searchParams.get('v');
+      return v && /^[A-Za-z0-9_-]{11}$/.test(v) ? v : null;
+    }
+    const seg = u.pathname.split('/').filter(Boolean)[0];
     return seg && /^[A-Za-z0-9_]{1,25}$/.test(seg) ? seg.toLowerCase() : null;
   } catch {
     return null;
   }
 }
+
+// A fonte às vezes anexa o texto "undefined" ao nome do evento.
+const cleanName = (n) => (n ? String(n).replace(/undefined$/, '').trim() || null : null);
 
 const httpsOnly = (u) => (typeof u === 'string' && u.startsWith('https://') ? u : null);
 
@@ -83,11 +91,10 @@ function normalizeLive(m) {
   const links = (m.streamLinks || []).filter((l) => httpsOnly(l.url));
   const official = m.streams && m.streams.official && httpsOnly(m.streams.official.url);
   // Todas as transmissões (https) com o canal extraído da URL; a Twitch é consultada depois.
-  const streams = links.slice(0, 8).map((l) => ({
-    platform: String(l.platform || '').toLowerCase() || null,
-    url: l.url,
-    channel: channelOf(l.url),
-  }));
+  const streams = links.slice(0, 8).map((l) => {
+    const platform = String(l.platform || '').toLowerCase() || null;
+    return { platform, url: l.url, channel: channelOf(l.url, platform) };
+  });
   const team = (k) => ({
     name: t[`${k}Name`] || m[`${k}Name`] || 'A definir',
     logo: t[`${k}LogoIsPlaceholder`] ? null : httpsOnly(t[`${k}LogoUrl`]),
@@ -98,7 +105,7 @@ function normalizeLive(m) {
   return {
     id: m.matchId || m.id,
     status: m.status,
-    event: { name: m.eventName || null, logo: httpsOnly(m.eventLogoUrl) },
+    event: { name: cleanName(m.eventName), logo: httpsOnly(m.eventLogoUrl) },
     bestOf: m.bestOf ?? null,
     startsAt: m.startsAt || null,
     map: m.currentMap ? String(m.currentMap).replace(/^de_/, '') : null,

@@ -21,6 +21,8 @@ app.use(
         'script-src': ["'self'", 'https://cdn.jsdelivr.net'],
         'img-src': ["'self'", 'data:', 'https:'],
         'font-src': ["'self'", 'https://fonts.gstatic.com'],
+        // Players embutidos (Twitch, Kick, YouTube)
+        'frame-src': ['https://player.twitch.tv', 'https://player.kick.com', 'https://www.youtube.com'],
         'style-src': ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
       },
     },

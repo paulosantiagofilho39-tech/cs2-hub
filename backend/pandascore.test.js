@@ -125,3 +125,22 @@ test('Twitch: sem credenciais retorna vazio sem chamar a rede', async () => {
   const tw = require('./services/twitch');
   assert.strictEqual((await tw.getLiveStreams(['eslcs'])).size, 0);
 });
+
+test('Cito: extrai canal por plataforma e limpa "undefined" do nome do evento', async () => {
+  process.env.CITO_API_KEY = 'k';
+  for (const m of ['./services/cito', './config']) delete require.cache[require.resolve(m)];
+  global.fetch = async () => ({ ok: true, status: 200, json: async () => ({ data: [{
+    matchId: 'm', status: 'live', eventName: 'Finalundefined',
+    teams: { team1Name: 'A', team2Name: 'B' },
+    streamLinks: [
+      { platform: 'twitch', url: 'https://www.twitch.tv/EslCS' },
+      { platform: 'kick', url: 'https://kick.com/eslcs' },
+      { platform: 'youtube', url: 'https://www.youtube.com/watch?v=x4po_lMEync' },
+      { platform: 'youtube', url: 'https://www.youtube.com/watch?v=curto' },
+      { platform: 'twitch', url: 'http://insecure/x' },
+    ] }] }) });
+  const cito = require('./services/cito');
+  const m = (await cito.getLive()).items[0];
+  assert.strictEqual(m.event.name, 'Final');
+  assert.deepStrictEqual(m.streams.map((s) => s.channel), ['eslcs', 'eslcs', 'x4po_lMEync', null]);
+});

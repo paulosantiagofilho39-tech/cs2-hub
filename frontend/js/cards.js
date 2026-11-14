@@ -114,6 +114,70 @@
   // ---------- Ao vivo (Cito API) ----------
   const mapLabel = (m) => (m ? m.charAt(0).toUpperCase() + m.slice(1) : null);
 
+
+  // ---------- Player embutido (Twitch, Kick, YouTube) ----------
+  // O endereço do iframe é montado aqui a partir de identificadores validados (allowlist de domínios).
+  function embedUrl(s) {
+    const ch = s.channel || '';
+    if (s.platform === 'twitch' && /^[a-z0-9_]{1,25}$/.test(ch)) return `https://player.twitch.tv/?channel=${ch}&parent=${encodeURIComponent(location.hostname)}`;
+    if (s.platform === 'kick' && /^[a-z0-9_]{1,25}$/.test(ch)) return `https://player.kick.com/${ch}`;
+    if (s.platform === 'youtube' && /^[A-Za-z0-9_-]{11}$/.test(ch)) return `https://www.youtube.com/embed/${ch}`;
+    return null;
+  }
+  const PLATFORM = { twitch: 'Twitch', kick: 'Kick', youtube: 'YouTube' };
+
+  function openPlayer(m) {
+    // Ao vivo na Twitch primeiro (mais espectadores antes), depois as demais.
+    const options = (m.streams || [])
+      .filter((s) => embedUrl(s))
+      .sort((a, b) => Number(!!b.live) - Number(!!a.live) || (b.viewers || 0) - (a.viewers || 0));
+    if (!options.length) return;
+
+    const frameBox = el('div', { class: 'player-frame' });
+    const tabs = el('div', { class: 'player-tabs' });
+    const openLink = el('a', { class: 'player-open', target: '_blank', rel: 'noopener noreferrer', text: 'Abrir no site ↗' });
+
+    function select(i) {
+      const s = options[i];
+      const iframe = el('iframe', { src: embedUrl(s), allow: 'autoplay; fullscreen; picture-in-picture', allowfullscreen: '', referrerpolicy: 'strict-origin-when-cross-origin', title: 'Transmissão' });
+      frameBox.replaceChildren(iframe);
+      openLink.href = s.url;
+      [...tabs.children].forEach((t, j) => t.classList.toggle('active', j === i));
+    }
+    options.forEach((s, i) => {
+      const label = (PLATFORM[s.platform] || s.platform) + ' · ' + (s.channel && s.platform !== 'youtube' ? s.channel : 'vídeo') + (s.viewers ? ` (${s.viewers.toLocaleString('pt-BR')})` : '');
+      const b = el('button', { type: 'button', class: 'chip', text: label });
+      b.addEventListener('click', () => select(i));
+      tabs.appendChild(b);
+    });
+
+    const title = m.teams[0].name + ' × ' + m.teams[1].name;
+    const close = el('button', { type: 'button', class: 'player-close', 'aria-label': 'Fechar', text: '✕' });
+    const modal = el('div', { class: 'player-modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': title }, [
+      el('div', { class: 'player-box' }, [
+        el('div', { class: 'player-head' }, [el('strong', { text: title }), close]),
+        frameBox,
+        tabs,
+        openLink,
+      ]),
+    ]);
+    const shut = () => { modal.remove(); document.removeEventListener('keydown', onKey); document.body.classList.remove('no-scroll'); };
+    const onKey = (e) => { if (e.key === 'Escape') shut(); };
+    close.addEventListener('click', shut);
+    modal.addEventListener('click', (e) => { if (e.target === modal) shut(); });
+    document.addEventListener('keydown', onKey);
+    document.body.classList.add('no-scroll');
+    document.body.appendChild(modal);
+    select(0);
+    close.focus();
+  }
+
+  function playBtn(m) {
+    const b = el('button', { type: 'button', class: 'play-btn', text: '▶ Assistir aqui' });
+    b.addEventListener('click', () => openPlayer(m));
+    return b;
+  }
+
   function liveCard(m) {
     const head = el('div', { class: 'match-head' }, [
       el('span', { class: 'match-meta', text: m.event.name || 'CS2' }),
@@ -131,7 +195,8 @@
     const foot = el('div', { class: 'match-foot' }, [
       el('span', { text: info || 'Aguardando dados' }),
       m.twitch ? el('span', { class: 'viewers', text: '👁 ' + m.twitch.viewers.toLocaleString('pt-BR') + ' na Twitch' }) : null,
-      m.twitch || m.stream ? el('a', { href: (m.twitch || m.stream).url, target: '_blank', rel: 'noopener noreferrer', text: 'Assistir ↗' }) : null,
+      (m.streams || []).some((x) => embedUrl(x)) ? playBtn(m) : null,
+      m.twitch || m.stream ? el('a', { href: (m.twitch || m.stream).url, target: '_blank', rel: 'noopener noreferrer', text: 'Abrir ↗' }) : null,
     ]);
     return el('article', { class: 'card match-card' }, [head, row(m.teams[0]), row(m.teams[1]), foot]);
   }

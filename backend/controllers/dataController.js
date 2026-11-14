@@ -138,7 +138,8 @@ async function withTwitch(items) {
       .filter((s) => s.platform === 'twitch' && s.channel && live.has(s.channel))
       .map((s) => ({ channel: s.channel, url: s.url, viewers: live.get(s.channel).viewers }))
       .sort((a, b) => b.viewers - a.viewers);
-    return { ...i, twitch: on.length ? { channels: on.length, viewers: on.reduce((n, c) => n + c.viewers, 0), url: on[0].url } : null };
+    const streams = i.streams.map((s) => (s.platform === 'twitch' && live.has(s.channel) ? { ...s, live: true, viewers: live.get(s.channel).viewers } : s));
+    return { ...i, streams, twitch: on.length ? { channels: on.length, viewers: on.reduce((n, c) => n + c.viewers, 0), url: on[0].url } : null };
   });
 }
 
