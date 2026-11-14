@@ -13,8 +13,8 @@ const PAGES = {
     note: 'Dados: PandaScore. Filtros por campeonato e por equipe chegam em breve.',
     stage: 2,
   },
-  players: { title: 'Jogadores', sub: 'Perfis, rating, K/D, ADR, KAST e comparação entre jogadores.', stage: 3 },
-  teams: { title: 'Equipes', sub: 'Elenco, ranking, histórico e aproveitamento por mapa.', stage: 3 },
+  players: { title: 'Jogadores', sub: 'Perfis de jogadores profissionais de CS2. Estatísticas individuais dependem de outra fonte de dados.', stage: 3 },
+  teams: { title: 'Equipes', sub: 'Elenco, país e histórico de partidas das equipes de CS2.', stage: 3 },
   tournaments: {
     title: 'Campeonatos', sub: 'Premiação, datas e organizadoras dos campeonatos de CS2.',
     filters: [['running', 'Em andamento'], ['upcoming', 'Próximos'], ['past', 'Encerrados']],
@@ -23,7 +23,7 @@ const PAGES = {
   rankings: {
     title: 'Rankings', sub: 'Jogadores, equipes, desempenho individual e aproveitamento por mapa.',
     filters: [['7d', 'Últimos 7 dias'], ['30d', 'Últimos 30 dias'], ['3m', 'Últimos 3 meses'], ['year', 'Ano atual']],
-    note: 'Nenhuma posição é exibida sem dados reais.', stage: 3,
+    note: 'Ranking calculado a partir de resultados reais; não é um ranking oficial.', stage: 3,
   },
   stats: { title: 'Estatísticas avançadas', sub: 'Rating, K/D, ADR, KAST, HS%, first kills, clutches e lado CT/TR.', stage: 4 },
   maps: { title: 'Mapas', sub: 'Taxa de vitória, popularidade e desempenho por equipe em cada mapa.', maps: true, stage: 4 },
@@ -63,7 +63,36 @@ const template = (key, p) => `<!DOCTYPE html>
 </html>
 `;
 
+// Páginas de detalhe (/team/:slug e /player/:slug): título e conteúdo são preenchidos por js/detail.js.
+const detailTemplate = (key, title) => `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${title} — ACEZONE</title>
+  <meta name="description" content="${title} de Counter-Strike 2 no ACEZONE.">
+  <meta name="theme-color" content="#0d0e10">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="${key}">
+  <header class="site-header" id="site-header"></header>
+  <main>
+    <div class="container" id="detail"></div>
+  </main>
+  <footer class="site-footer" id="site-footer"></footer>
+  <script src="/js/components.js"></script>
+  <script src="/js/cards.js"></script>
+  <script src="/js/detail.js"></script>
+</body>
+</html>
+`;
+
 fs.mkdirSync(OUT, { recursive: true });
+fs.writeFileSync(path.join(OUT, 'team.html'), detailTemplate('team', 'Equipe'));
+fs.writeFileSync(path.join(OUT, 'player.html'), detailTemplate('player', 'Jogador'));
 for (const [key, p] of Object.entries(PAGES)) {
   fs.writeFileSync(path.join(OUT, `${key}.html`), template(key, p));
 }

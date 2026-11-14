@@ -40,6 +40,9 @@ app.use(express.static(FRONTEND, { extensions: ['html'], maxAge: config.env === 
 // URLs amigáveis: /matches -> pages/matches.html
 const PAGES = ['matches', 'players', 'teams', 'tournaments', 'rankings', 'stats', 'maps', 'news'];
 PAGES.forEach((p) => app.get(`/${p}`, (req, res) => res.sendFile(path.join(FRONTEND, 'pages', `${p}.html`))));
+// URLs amigáveis de detalhe: /team/vitality, /player/zywoo
+app.get('/team/:slug', (req, res) => res.sendFile(path.join(FRONTEND, 'pages', 'team.html')));
+app.get('/player/:slug', (req, res) => res.sendFile(path.join(FRONTEND, 'pages', 'player.html')));
 
 app.use(errorHandler);
 

@@ -80,5 +80,35 @@
     }
   }
 
-  window.Cards = { matchCard, tournamentCard, load };
+
+  // Bandeira a partir do código do país (ex.: "SE"); vazio se o código for inválido.
+  const flag = (cc) => (/^[A-Za-z]{2}$/.test(cc || '') ? String.fromCodePoint(...[...cc.toUpperCase()].map((c) => 127397 + c.charCodeAt(0))) + ' ' : '');
+
+  const teamHref = (t) => '/team/' + encodeURIComponent(t.slug || t.id);
+  const playerHref = (p) => '/player/' + encodeURIComponent(p.slug || p.id);
+
+  function teamCard(t) {
+    return el('a', { class: 'card tourn-card link-card', href: teamHref(t) }, [
+      logo(t.logo, t.name, 40),
+      el('div', {}, [el('strong', { text: t.name }), el('div', { class: 'match-meta', text: flag(t.country) + (t.country || 'País não informado') })]),
+    ]);
+  }
+
+  function playerCard(p) {
+    const photo = p.photo ? el('img', { src: p.photo, alt: p.name, width: 48, height: 48, loading: 'lazy', class: 'team-logo avatar' }) : el('span', { class: 'logo-ph avatar', text: p.name.slice(0, 2).toUpperCase() });
+    const sub = [flag(p.nationality) + (p.nationality || ''), p.team?.name, p.role].filter((x) => x && x.trim()).join(' · ');
+    return el('a', { class: 'card tourn-card link-card', href: playerHref(p) }, [photo, el('div', {}, [el('strong', { text: p.name }), el('div', { class: 'match-meta', text: sub || 'Sem detalhes' })])]);
+  }
+
+  function rankRow(r) {
+    return el('a', { class: 'card rank-row link-card', href: teamHref(r.team) }, [
+      el('span', { class: 'rank-pos', text: '#' + r.position }),
+      logo(r.team.logo, r.team.name, 32),
+      el('span', { class: 'team-name', text: flag(r.team.country) + r.team.name }),
+      el('span', { class: 'rank-rec', text: r.wins + 'V ' + r.losses + 'D' }),
+      el('span', { class: 'rank-pct', text: r.winRate.toFixed(1) + '%' }),
+    ]);
+  }
+
+  window.Cards = { matchCard, tournamentCard, teamCard, playerCard, rankRow, load, logo, flag, fmtDate, fmtDay, teamHref, playerHref };
 })();

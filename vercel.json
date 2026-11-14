@@ -3,6 +3,8 @@
   "outputDirectory": "frontend",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api" },
+    { "source": "/team/:slug", "destination": "/pages/team.html" },
+    { "source": "/player/:slug", "destination": "/pages/player.html" },
     { "source": "/:page(matches|players|teams|tournaments|rankings|stats|maps|news)", "destination": "/pages/:page.html" }
   ]
 }

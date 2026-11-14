@@ -36,3 +36,26 @@ test('sem token retorna provider_not_configured', async () => {
   const ps = require('./services/pandascore');
   await assert.rejects(ps.listMatches('running'), (e) => e.code === 'provider_not_configured');
 });
+
+test('ranking calcula aproveitamento, ignora partidas sem vencedor e respeita o mínimo', async () => {
+  process.env.PANDASCORE_TOKEN = 'tok';
+  delete require.cache[require.resolve('./services/pandascore')];
+  delete require.cache[require.resolve('./config')];
+  const recent = new Date(Date.now() - 86400000).toISOString();
+  const mk = (id, winner) => ({
+    id, status: 'finished', begin_at: recent, end_at: recent, match_type: 'best_of', number_of_games: 3, winner_id: winner,
+    opponents: [{ opponent: { id: 1, slug: 'alpha', name: 'Alpha' } }, { opponent: { id: 2, slug: 'beta', name: 'Beta' } }],
+    results: [], tournament: { name: 'T', tier: 'a' },
+  });
+  // 6 partidas: Alpha vence 5 e perde 1; uma partida cancelada sem vencedor deve ser ignorada
+  const page1 = [mk(1, 1), mk(2, 1), mk(3, 1), mk(4, 1), mk(5, 1), mk(6, 2), { ...mk(7, null), status: 'canceled' }];
+  global.fetch = async (u) => ({ ok: true, status: 200, json: async () => (new URL(String(u)).searchParams.get('page') === '1' ? page1 : []) });
+  const ps = require('./services/pandascore');
+  const r = await ps.teamRanking('7d');
+  assert.strictEqual(r.items.length, 2);
+  assert.strictEqual(r.items[0].team.name, 'Alpha');
+  assert.strictEqual(r.items[0].wins, 5);
+  assert.strictEqual(r.items[0].winRate, 83.3);
+  assert.strictEqual(r.items[0].position, 1);
+  assert.strictEqual(r.meta.matchesUsed, 6);
+});
