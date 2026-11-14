@@ -240,3 +240,14 @@ html, body { overflow-x: hidden; }
 }
 .card-head { flex-wrap: wrap; gap: 8px 12px; }
 .card-head h2 { min-width: 0; }
+
+/* Corrige estouro dentro dos cards de partida */
+.match-card, .tourn-card, .rank-row { min-width: 0; overflow: hidden; }
+.match-card { grid-template-columns: minmax(0, 1fr); }
+.match-card > *, .match-head > *, .match-foot > *, .team-row > * { min-width: 0; }
+.match-head .match-meta { flex: 1 1 0; }
+.match-foot > span:first-child { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.team-row .team-name { min-width: 0; }
+.card, .card > div { min-width: 0; }
+.cards-grid { grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); }
+.match-head .badge, .match-foot a, .match-foot .play-btn, .match-foot .viewers { flex-shrink: 0; white-space: nowrap; }
