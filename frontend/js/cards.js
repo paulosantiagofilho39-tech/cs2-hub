@@ -117,11 +117,12 @@
 
   // ---------- Player embutido (Twitch, Kick, YouTube) ----------
   // O endereço do iframe é montado aqui a partir de identificadores validados (allowlist de domínios).
-  function embedUrl(s) {
+  // auto = true: inicia sozinho e sem som (navegadores só permitem autoplay mudo).
+  function embedUrl(s, auto) {
     const ch = s.channel || '';
-    if (s.platform === 'twitch' && /^[a-z0-9_]{1,25}$/.test(ch)) return `https://player.twitch.tv/?channel=${ch}&parent=${encodeURIComponent(location.hostname)}`;
-    if (s.platform === 'kick' && /^[a-z0-9_]{1,25}$/.test(ch)) return `https://player.kick.com/${ch}`;
-    if (s.platform === 'youtube' && /^[A-Za-z0-9_-]{11}$/.test(ch)) return `https://www.youtube.com/embed/${ch}`;
+    if (s.platform === 'twitch' && /^[a-z0-9_]{1,25}$/.test(ch)) return `https://player.twitch.tv/?channel=${ch}&parent=${encodeURIComponent(location.hostname)}` + (auto ? '&autoplay=true&muted=true' : '');
+    if (s.platform === 'kick' && /^[a-z0-9_]{1,25}$/.test(ch)) return `https://player.kick.com/${ch}` + (auto ? '?autoplay=true&muted=true' : '');
+    if (s.platform === 'youtube' && /^[A-Za-z0-9_-]{11}$/.test(ch)) return `https://www.youtube.com/embed/${ch}` + (auto ? '?autoplay=1&mute=1' : '');
     return null;
   }
   const PLATFORM = { twitch: 'Twitch', kick: 'Kick', youtube: 'YouTube' };
@@ -217,5 +218,5 @@
       return load('/api/matches?status=running&per_page=' + (limit || 30), container, matchCard, 'Nenhuma partida ao vivo no momento.', limit);
     }
   }
-  window.Cards = { matchCard, tournamentCard, teamCard, playerCard, rankRow, load, loadLive, liveCard, logo, flag, fmtDate, fmtDay, teamHref, playerHref };
+  window.Cards = { matchCard, tournamentCard, teamCard, playerCard, rankRow, load, loadLive, liveCard, embedUrl, PLATFORM, logo, flag, fmtDate, fmtDay, teamHref, playerHref };
 })();

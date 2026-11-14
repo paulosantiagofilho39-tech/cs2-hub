@@ -15,11 +15,14 @@
   <header class="site-header" id="site-header"></header>
   <main>
     <div class="container">
-      <section class="hero">
-        <h1>Todo o cenário de <em>Counter-Strike 2</em> em um só lugar.</h1>
-        <p>Partidas, jogadores, equipes, campeonatos e estatísticas avançadas do cenário competitivo.</p>
-        <a class="btn" href="/matches">Ver partidas</a>
-        <a class="btn ghost" href="/rankings">Rankings</a>
+      <section class="hero hero-live">
+        <div class="hero-text">
+          <h1>Todo o cenário de <em>Counter-Strike 2</em> em um só lugar.</h1>
+          <p>Partidas, jogadores, equipes, campeonatos e estatísticas avançadas do cenário competitivo.</p>
+          <a class="btn" href="/matches">Ver partidas</a>
+          <a class="btn ghost" href="/rankings">Rankings</a>
+        </div>
+        <div class="hero-player" id="hero-player" aria-live="polite"></div>
       </section>
       <div class="grid" id="home-grid"></div>
       <section class="card col-12" style="margin-top:20px">
