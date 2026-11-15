@@ -295,6 +295,7 @@ async function teamRanking(period = '30d') {
 }
 
 module.exports = {
+  request,
   listMatches, listTournaments, searchTeams, getTeam, searchPlayers, getPlayer, getTeamsByIds, getTeamMatches, teamRanking,
   MATCH_STATUS, TOURNAMENT_STATUS, PERIOD_DAYS, ProviderError,
 };
