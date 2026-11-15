@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 
 const OUT = path.join(__dirname, '..', 'frontend', 'pages');
-const MAPS = ['Mirage', 'Inferno', 'Dust2', 'Nuke', 'Ancient', 'Anubis', 'Overpass', 'Train'];
 
 const PAGES = {
   matches: {
@@ -25,7 +24,7 @@ const PAGES = {
     stage: 3,
   },
   stats: { title: 'Estatísticas avançadas', sub: 'Rating, K/D, ADR, KAST, HS%, first kills, clutches e lado CT/TR.', stage: 4 },
-  maps: { title: 'Mapas', sub: 'Taxa de vitória, popularidade e desempenho por equipe em cada mapa.', maps: true, stage: 4 },
+  maps: { title: 'Mapas', sub: 'Os mapas do pool competitivo de CS2.', stage: 4 },
   news: { title: 'Notícias', sub: 'Transferências, mudanças de elenco e resultados.', stage: 5 },
 };
 
@@ -54,7 +53,6 @@ const template = (key, p) => `<!DOCTYPE html>
       <p class="page-sub">${p.sub}</p>
       <div class="filters" id="filters" data-filters='${JSON.stringify(p.filters || [])}'></div>
       ${p.note ? `<p class="page-sub" style="font-size:.85rem">${p.note}</p>` : ''}
-      ${p.maps ? `<div class="maps-grid" id="maps-grid" data-maps='${JSON.stringify(MAPS)}'></div>` : ''}
       <section class="card" id="content"></section>
     </div>
   </main>

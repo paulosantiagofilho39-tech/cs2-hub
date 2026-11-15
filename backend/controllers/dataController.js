@@ -109,6 +109,16 @@ exports.player = async (req, res) => {
   }
 };
 
+exports.maps = async (req, res) => {
+  try {
+    const items = await ps.listMaps();
+    setCdnCache(res, 86400);
+    res.json({ source: 'PandaScore', items });
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
 exports.rankings = async (req, res) => {
   const period = ['7d', '30d', '3m', 'year'].includes(req.query.period) ? req.query.period : '30d';
   try {

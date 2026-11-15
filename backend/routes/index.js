@@ -13,6 +13,7 @@ router.get('/teams/:key', data.team);
 router.get('/players', data.players);
 router.get('/players/:key', data.player);
 router.get('/rankings', data.rankings);
+router.get('/maps', data.maps);
 
 // Cito API (ao vivo)
 router.get('/cito/live', data.citoLive);

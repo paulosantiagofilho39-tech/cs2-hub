@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tournaments: { param: 'status', fallback: 'running', api: (v) => `/api/tournaments?status=${v}&per_page=30`, render: () => C.tournamentCard, empty: 'Nenhum campeonato para este filtro.', grid: 'stack' },
     teams: { search: 'Buscar equipe…', api: (v, q) => `/api/teams?q=${encodeURIComponent(q)}`, render: () => C.teamCard, empty: 'Nenhuma equipe encontrada.', grid: 'cards-grid' },
     players: { search: 'Buscar jogador…', api: (v, q) => `/api/players?q=${encodeURIComponent(q)}`, render: () => C.playerCard, empty: 'Nenhum jogador encontrado.', grid: 'cards-grid' },
+    maps: { api: () => '/api/maps', render: () => C.mapCard, empty: 'Nenhum mapa disponível.', grid: 'maps-grid' },
     rankings: { param: 'period', fallback: '30d', api: (v) => `/api/rankings?period=${v}`, render: () => C.rankRow, empty: 'Sem dados suficientes neste período.', grid: 'stack', meta: true },
   }[page];
 
@@ -58,14 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 400);
     });
     content.before(input);
-  }
-
-  // Mapas: lista dos 8 mapas competitivos (sem estatísticas inventadas).
-  const mapsBox = document.getElementById('maps-grid');
-  if (mapsBox) {
-    JSON.parse(mapsBox.dataset.maps).forEach((name) => {
-      mapsBox.appendChild(el('div', { class: 'card map-card' }, [document.createTextNode(name), el('small', { text: 'Estatísticas em breve' })]));
-    });
   }
 
   if (LIVE) return refresh();

@@ -185,6 +185,13 @@ function normalizeTeam(t) {
 // id numérico ou slug (validado nos controllers) -> filtro da API.
 const keyFilter = (key) => (/^\d+$/.test(key) ? { 'filter[id]': key } : { 'filter[slug]': key });
 
+async function listMaps() {
+  const data = await cached('maps', 24 * 3600 * 1000, () => request('/csgo/maps', { per_page: 50 }));
+  return data
+    .filter((m) => m && m.name)
+    .map((m) => ({ id: m.id, name: m.name, image: httpsOnly(m.image_url) }));
+}
+
 async function searchTeams(q, { page = 1, perPage = 20 } = {}) {
   const params = { 'search[name]': q, page, per_page: perPage, sort: 'name' };
   const data = await cached(`teams:q:${q.toLowerCase()}:${page}:${perPage}`, 3600 * 1000, () => request('/csgo/teams', params));
@@ -295,6 +302,6 @@ async function teamRanking(period = '30d') {
 }
 
 module.exports = {
-  listMatches, listTournaments, searchTeams, getTeam, searchPlayers, getPlayer, getTeamsByIds, getTeamMatches, teamRanking,
+  listMatches, listTournaments, listMaps, searchTeams, getTeam, searchPlayers, getPlayer, getTeamsByIds, getTeamMatches, teamRanking,
   MATCH_STATUS, TOURNAMENT_STATUS, PERIOD_DAYS, ProviderError,
 };

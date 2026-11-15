@@ -109,8 +109,9 @@ main { flex: 1; padding: 28px 0 56px; }
 .chip:hover { color: var(--text); }
 .chip.active { background: rgba(255, 122, 26, .12); border-color: var(--accent); color: var(--accent); }
 .maps-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr)); }
-.map-card { text-align: center; padding: 26px 12px; font-family: var(--font-display); font-size: 1.3rem; }
-.map-card small { display: block; font-family: var(--font-body); color: var(--muted); font-size: .75rem; margin-top: 4px; }
+.map-card { text-align: center; padding: 0; overflow: hidden; font-family: var(--font-display); font-size: 1.15rem; }
+.map-card strong { display: block; padding: 12px 8px; }
+.map-img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background: rgba(255,255,255,.04); }
 
 /* Status API */
 .status-list { display: grid; gap: 8px; font-size: .9rem; }

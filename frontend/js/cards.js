@@ -93,6 +93,11 @@
     ]);
   }
 
+  function mapCard(m) {
+    const img = m.image ? el('img', { src: m.image, alt: m.name, loading: 'lazy', class: 'map-img' }) : el('div', { class: 'map-img map-ph' });
+    return el('div', { class: 'card map-card' }, [img, el('strong', { text: m.name })]);
+  }
+
   function playerCard(p) {
     const photo = p.photo ? el('img', { src: p.photo, alt: p.name, width: 48, height: 48, loading: 'lazy', class: 'team-logo avatar' }) : el('span', { class: 'logo-ph avatar', text: p.name.slice(0, 2).toUpperCase() });
     const sub = [flag(p.nationality) + (p.nationality || ''), p.team?.name, p.role].filter((x) => x && x.trim()).join(' · ');
@@ -216,5 +221,5 @@
       return load('/api/matches?status=running&per_page=' + (limit || 30), container, matchCard, 'Nenhuma partida ao vivo no momento.', limit);
     }
   }
-  window.Cards = { matchCard, tournamentCard, teamCard, playerCard, rankRow, load, loadLive, liveCard, embedUrl, PLATFORM, logo, flag, fmtDate, fmtDay, teamHref, playerHref };
+  window.Cards = { matchCard, mapCard, tournamentCard, teamCard, playerCard, rankRow, load, loadLive, liveCard, embedUrl, PLATFORM, logo, flag, fmtDate, fmtDay, teamHref, playerHref };
 })();
