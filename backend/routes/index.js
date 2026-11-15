@@ -27,10 +27,10 @@ router.get('/admin/probe', async (req, res) => {
   const k = String(req.query.key || '');
   const a = Buffer.from(k), b = Buffer.from(config.adminToken || '');
   if (!config.adminToken || a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ error: 'Não autorizado.' });
-  const path = String(req.query.path || '');
+  const path = String(req.query.p || '');
   if (!/^\/[a-z0-9_\-\/]{1,120}$/i.test(path)) return res.status(400).json({ error: 'path inválido' });
   const params = {};
-  for (const [kk, v] of Object.entries(req.query)) if (kk !== 'key' && kk !== 'path') params[kk] = v;
+  for (const [kk, v] of Object.entries(req.query)) if (kk !== 'key' && kk !== 'p' && kk !== 'path') params[kk] = v;
   try {
     const out = await require('../services/pandascore').request(path, params);
     const text = JSON.stringify(out);
